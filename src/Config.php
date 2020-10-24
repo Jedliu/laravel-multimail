@@ -41,11 +41,22 @@ class Config
      */
     public function __construct($key)
     {
-        // Retreive email
-        $this->parseEmail($key);
-
-        $this->loadConfiguration();
-
+        if (is_array($key)) {
+            // Get email setting from the array setting
+            // Updated by: Jedliu@zoho.com
+            try {
+                $this->name = $key['name'];
+                $this->email = $key['email'];
+                $this->provider = $key['provider'];
+                $this->settings = $key['settings'];
+            } catch (\Throwable $th) {
+                throw new Exceptions\InvalidEmailSettingException;
+            }
+        } else {
+            // Retreive email
+            $this->parseEmail($key);
+            $this->loadConfiguration();
+        }
         // If credentials are empty, load default values.
         // This makes local testing for many emails
         // very convenient.
