@@ -81,7 +81,7 @@ class MultiMailer
         if (\App::runningUnitTests() && config('multimail.use_default_mail_facade_in_tests')) {
             return \Mail::send($mailable);
         }
-      
+
         if (empty($mailer_name)) {
             return \Mail::send($mailable);
         }
@@ -233,6 +233,25 @@ class MultiMailer
             foreach ($this->plugins as $plugin) {
                 $swift_mailer->registerPlugin($plugin);
             }
+        }
+    }
+
+    /**
+     * validate the email setting
+     *
+     * @param array $mailer_name
+     * @return bool
+     */
+    public function validate(array $mailer_name)
+    {
+        try {
+            $mailer = $this->getMailer($mailer_name);
+            $mailer->getSwiftMailer()->getTransport()->start();
+            return true;
+        } catch (Swift_TransportException $e) {
+            return $e->getMessage();
+        } catch (Exception $e) {
+            return $e->getMessage();
         }
     }
 }
